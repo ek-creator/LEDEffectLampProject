@@ -41,6 +41,8 @@
 #define MAX_POWER_MILLIAMPS 2500                // Power Supply In m/A 1000=1amp 5000=5amp 10000=10amp etc.
 #define BUTTON_1_PIN 5                          // pattern forward button
 #define BUTTON_2_PIN 18                         // pattern backwards button
+#define BUTTON_3_PIN 19                         // pattern upwards button
+#define BUTTON_4_PIN 21                         // pattern downwards button
 
 const uint8_t MATRIX_WIDTH = 8;                 // Edit this to your matrix width
 const uint8_t MATRIX_HEIGHT = 38;               // Edit this to your matrix height
@@ -79,6 +81,8 @@ IRrecv irReceiver(IR_RECV_PIN);
 
 Bounce button1 = Bounce();
 Bounce button2 = Bounce();
+Bounce button3 = Bounce();
+Bounce button4 = Bounce();
 
 #include "Commands.h"
 #include "GradientPalettes.h"
@@ -244,10 +248,16 @@ void setup() {
 
   pinMode(BUTTON_1_PIN, INPUT_PULLUP);
   pinMode(BUTTON_2_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_3_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_4_PIN, INPUT_PULLUP);
   button1.attach(BUTTON_1_PIN);
   button2.attach(BUTTON_2_PIN);
+  button3.attach(BUTTON_3_PIN);
+  button4.attach(BUTTON_4_PIN);
   button1.interval(5);
   button2.interval(5);
+  button3.interval(5);
+  button4.interval(5);
 
   currentPattern = patterns[currentPatternIndex];
   autoPlayTimeout = millis() + (autoPlayDurationSeconds * 1000);
@@ -339,8 +349,10 @@ void powerOff()
     // check for physical button input
     button1.update();
     button2.update();
+    button3.update();
+    button4.update();
 
-    if (button1.rose() || button2.rose()) {
+    if (button1.rose() || button2.rose() || button3.rose() || button4.rose()) {
       Serial.println("Button released");
       return;
     }
@@ -425,6 +437,8 @@ void cyclePalette(int delta = 1) {
 
 unsigned long button1PressTimeStamp;
 unsigned long button2PressTimeStamp;
+unsigned long button3PressTimeStamp;
+unsigned long button4PressTimeStamp;
 
 void handleInput(unsigned int requestedDelay) {
   unsigned int requestedDelayTimeout = millis() + requestedDelay;
@@ -433,6 +447,8 @@ void handleInput(unsigned int requestedDelay) {
     // check for physical button input
     button1.update();
     button2.update();
+    button3.update();
+    button4.update();
 
     if (button1.fell()) {
       Serial.println("Button 1 depressed");
@@ -443,6 +459,15 @@ void handleInput(unsigned int requestedDelay) {
       Serial.println("Button 2 depressed");
       button2PressTimeStamp = millis();
     }
+    if (button3.fell()) {
+      Serial.println("Button 3 depressed");
+      button3PressTimeStamp = millis();
+    }
+
+    if (button4.fell()) {
+      Serial.println("Button 4 depressed");
+      button4PressTimeStamp = millis();
+    }
 
     if (button1.rose()) {
       Serial.println("Button 1 released");
@@ -452,6 +477,16 @@ void handleInput(unsigned int requestedDelay) {
     if (button2.rose()) {
       Serial.println("Button 2 released");
       move(-1);
+    }
+
+    if (button3.rose()) {
+      Serial.println("Button 3 released");
+      adjustBrightness(1);
+    }
+
+    if (button4.rose()) {
+      Serial.println("Button 4 released");
+      adjustBrightness(-1);
       break;
     }
 
