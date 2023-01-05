@@ -33,17 +33,17 @@
 #error "Requires FastLED 3.1 or later; check github for latest code."
 #endif
 
-#define LED_PIN     11                          // Edit this to your required pin number (leave at 11 recommended)
+#define LED_PIN     4                           // Edit this to your required pin number (leave at 11 recommended)
 #define IR_RECV_PIN 12                          // Pin for use with an IR remote control
-#define COLOR_ORDER GRB                         // LED order Green, Red, Blue as default
-#define CHIPSET     1, WS2812B                  // LED Chipset if using teensy 4.0 or above add 1, if below remove 1,
-#define NUM_LEDS    174                         // How many leds total?
-#define MAX_POWER_MILLIAMPS 5000                // Power Supply In m/A 1000=1amp 5000=5amp 10000=10amp etc.
-#define BUTTON_1_PIN 16
-#define BUTTON_2_PIN 17
+#define COLOR_ORDER RGB                         // LED order Green, Red, Blue as default
+#define CHIPSET     WS2812B                     // LED Chipset if using teensy 4.0 or above add 1, if below remove 1,
+#define NUM_LEDS    300                         // How many leds total?
+#define MAX_POWER_MILLIAMPS 2500                // Power Supply In m/A 1000=1amp 5000=5amp 10000=10amp etc.
+#define BUTTON_1_PIN 5                          // pattern forward button
+#define BUTTON_2_PIN 18                         // pattern backwards button
 
-const uint8_t MATRIX_WIDTH = 6;                 // Edit this to your matrix width
-const uint8_t MATRIX_HEIGHT = 29;               // Edit this to your matrix height
+const uint8_t MATRIX_WIDTH = 8;                 // Edit this to your matrix width
+const uint8_t MATRIX_HEIGHT = 38;               // Edit this to your matrix height
 
 uint16_t XY(uint8_t x, uint8_t y);
 void dimAll(byte value);
@@ -89,9 +89,9 @@ typedef uint16_t(*PatternFunctionPointer)();
 typedef PatternFunctionPointer PatternList [];
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-int autoPlayDurationSeconds = 60;                                     // Set automatic play time per effect adjust as required
+int autoPlayDurationSeconds = 20;                                     // Set automatic play time per effect adjust as required
 unsigned int autoPlayTimeout = 10;
-bool autoplayEnabled = true;                                          // Disable / Enable automatic play function, use false if you wish to use momentary switch to control effects.
+bool autoplayEnabled = false;                                          // Disable / Enable automatic play function, use false if you wish to use momentary switch to control effects.
 
 InputCommand command;
 
@@ -144,38 +144,60 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 // EFFECTS LISTS                    // In automatic mode will display in order of the list.
 const PatternList patterns = {      // remove or add // to enable/disable effects
 
-  Analogous1,
-  Aurora,
-  BlackAndWhite,
-  Calbayo15,
-  Cloud,   
-  ColorCube,
-  ColorWaves, 
-  CoralReef,
-  Curvature,
-  DeepSea,
-  Fire2012Rainbow1,
-  FireBlue,
-  FireChemical,
-  FireGreen,
-  FireOrange,
-  FirePurple,
-  FireRed,
-  FireWhite,
-  Forest,
-  Lava,
-  LavaLampRainbow,
-  LavaLampRainbowStripe,
-  Ocean,
-  OceanBreeze,
-  Party,
-  RampRGB,
-  Rstcurv,
-  Shikon22,
-  Shikon23,
-  Spectrum,
-  Temperature,
-  Vintage49,
+ Fire2012WithPalette, // ACE
+
+  //----Normal-Effects-----
+  Analogous1, // slow
+  Aurora, // slow
+  BlackAndWhite, // flickering
+  Calbayo15, // slow lava
+  Cloud,   // good
+  ColorCube, // slow lava
+  ColorWaves, //slow
+  CoralReef, //slow lava
+  Curvature, // slow nice
+  DeepSea, // slow lava
+  Fire2012Rainbow1, // ACE
+  FireBlue, // ACE
+  FireChemical, // ACE
+  FireGreen, // ACE
+  FireOrange, // ACE
+  FirePurple, // ACE
+  FireRed, // ACE
+  FireWhite, // OK
+  Forest, // slow lava
+  Lava, // ACE lava
+  LavaLampRainbow, // Lava
+  LavaLampRainbowStripe, //ACE
+  Ocean, // slow
+  OceanBreeze, // slwo lava
+  Party, // slow lava
+  RampRGB, // lava
+  Rstcurv, // slow lava
+  Shikon22, // lava
+  Shikon23, // lava
+  Spectrum, // plasma
+  Temperature, // lava
+  Vintage49, // lava
+
+  //---Additional-Effects---
+ BPM, //pride
+ CloudTwinkles, // plasma
+ Confetti,  //  plasma
+ Fireflies, // slow plasma
+ FireNoise, // plasma
+ HueCycle, // rubbish
+ IncandescentTwinkles, // plasma
+ Juggle, // sinelon
+ Pride, // plasma
+ Pulse, // plasma
+ Rainbow, // pride
+ RainbowTwinkles, // plasma
+ RainbowWithGlitter, // pride
+ ShowSolidColor, // solid white
+ Sinelon, // sinelon
+ SnowTwinkles, // plasma
+ Wave, // plasmas/sinelon
 
 //--Sound-Reactive-Effects--
 //  AudioAnalyzerColumns,
@@ -197,25 +219,7 @@ const PatternList patterns = {      // remove or add // to enable/disable effect
 //  AudioParty,
 //  AudioRainbowStripe,
 
-//---Additional-Effects---
-//  BPM,
-//  CloudTwinkles,
-//  Confetti,
-//  Fire2012WithPalette,
-//  Fireflies,
-//  FireNoise,
-//  HueCycle,
-//  IncandescentTwinkles,
-//  Juggle,
-//  Pride,
-//  Pulse,
-//  Rainbow,
-//  RainbowTwinkles,
-//  RainbowWithGlitter,
-//  ShowSolidColor,
-//  Sinelon,
-//  SnowTwinkles,
-//  Wave,
+
 
 };
 //===================================================================================================================================================END EFFECT PLAYLIST
@@ -447,7 +451,7 @@ void handleInput(unsigned int requestedDelay) {
 
     if (button2.rose()) {
       Serial.println("Button 2 released");
-      powerOff();
+      move(-1);
       break;
     }
 
